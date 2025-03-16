@@ -146,10 +146,6 @@ local adminName = "Drakthon"
 local player = game.Players.LocalPlayer
 
 if player.Name == adminName then
-    -- عرض واجهة الأدمن
-    Frame.Visible = true
-
-    -- إضافة وظائف الأدمن
     local function createAdminButton(name, callback)
         local Button = Instance.new("TextButton")
         Button.Parent = Frame
@@ -195,7 +191,4 @@ if player.Name == adminName then
             end
         end
     end)
-else
-    -- إذا كان ليس الأدمن، إخفاء واجهته
-    Frame.Visible = false
 end
