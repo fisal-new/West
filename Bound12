@@ -1,0 +1,194 @@
+-- إنشاء واجهة GUI
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local UIListLayout = Instance.new("UIListLayout")
+local Title = Instance.new("TextLabel")
+local Footer = Instance.new("TextLabel")
+
+-- إعدادات الواجهة
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Frame.Size = UDim2.new(0, 220, 0, 350)
+Frame.Position = UDim2.new(0, 20, 0, 20)
+Frame.Active = true
+Frame.Draggable = true
+
+UIListLayout.Parent = Frame
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 5)
+
+Title.Parent = Frame
+Title.Text = "Westbound GUI"
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 16
+
+-- وظيفة لإنشاء زر جديد مع ON/OFF
+local function createToggleButton(name, callback)
+    local Button = Instance.new("TextButton")
+    Button.Parent = Frame
+    Button.Size = UDim2.new(1, 0, 0, 40)
+    Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Font = Enum.Font.SourceSans
+    Button.TextSize = 14
+
+    local state = false
+    Button.Text = name .. " [OFF]"
+
+    Button.MouseButton1Click:Connect(function()
+        state = not state
+        Button.Text = name .. (state and " [ON]" or " [OFF]")
+        callback(state)
+    end)
+end
+
+-- ميزة ESP (إظهار اللاعبين)
+local function toggleESP(enabled)
+    if enabled then
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player ~= game.Players.LocalPlayer and player.Character then
+                local Billboard = Instance.new("BillboardGui", player.Character.Head)
+                Billboard.Name = "ESP"
+                Billboard.Size = UDim2.new(0, 100, 0, 25)
+                Billboard.Adornee = player.Character.Head
+                Billboard.AlwaysOnTop = true
+
+                local Label = Instance.new("TextLabel", Billboard)
+                Label.Size = UDim2.new(1, 0, 1, 0)
+                Label.BackgroundTransparency = 1
+                Label.TextColor3 = Color3.fromRGB(255, 0, 0)
+                Label.Text = player.Name
+                Label.Font = Enum.Font.SourceSansBold
+                Label.TextSize = 14
+            end
+        end
+    else
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player.Character and player.Character:FindFirstChild("Head") then
+                local esp = player.Character.Head:FindFirstChild("ESP")
+                if esp then
+                    esp:Destroy()
+                end
+            end
+        end
+    end
+end
+
+-- ميزة Aimbot
+local aimConnection = nil
+local function toggleAimbot(enabled)
+    if enabled then
+        aimConnection = game:GetService("RunService").RenderStepped:Connect(function()
+            local closestPlayer = nil
+            local shortestDistance = math.huge
+
+            for _, player in pairs(game.Players:GetPlayers()) do
+                if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+                    local distance = (player.Character.Head.Position - game.Players.LocalPlayer.Character.Head.Position).Magnitude
+                    if distance < shortestDistance then
+                        shortestDistance = distance
+                        closestPlayer = player
+                    end
+                end
+            end
+
+            if closestPlayer and game.Players.LocalPlayer.Character then
+                local camera = workspace.CurrentCamera
+                camera.CFrame = CFrame.lookAt(camera.CFrame.Position, closestPlayer.Character.Head.Position)
+            end
+        end)
+    else
+        if aimConnection then
+            aimConnection:Disconnect()
+            aimConnection = nil
+        end
+    end
+end
+
+-- زر Join Our Discord
+local DiscordButton = Instance.new("TextButton")
+DiscordButton.Parent = Frame
+DiscordButton.Size = UDim2.new(1, 0, 0, 40)
+DiscordButton.BackgroundColor3 = Color3.fromRGB(70, 70, 255)
+DiscordButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+DiscordButton.Font = Enum.Font.SourceSansBold
+DiscordButton.TextSize = 16
+DiscordButton.Text = "Join Our Discord"
+
+DiscordButton.MouseButton1Click:Connect(function()
+    setclipboard("https://discord.gg/W3VwkUj6kf") -- رابط الديسكورد الخاص بك
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "Discord",
+        Text = "تم نسخ رابط الديسكورد!",
+        Duration = 3
+    })
+end)
+
+-- تذييل باسم Drakthon مع "-"
+Footer.Parent = Frame
+Footer.Text = "By Drakthon -"
+Footer.Size = UDim2.new(1, 0, 0, 25)
+Footer.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Footer.TextColor3 = Color3.fromRGB(255, 255, 255)
+Footer.Font = Enum.Font.SourceSansBold
+Footer.TextSize = 14
+
+-- إنشاء الأزرار
+createToggleButton("ESP", toggleESP)
+createToggleButton("Aimbot", toggleAimbot)
+
+-- إضافة ميزات الأدمن إذا كان اسم اللاعب "drakthon"
+local adminName = "drakthon"
+local player = game.Players.LocalPlayer
+
+if player.Name == adminName then
+    local function createAdminButton(name, callback)
+        local Button = Instance.new("TextButton")
+        Button.Parent = Frame
+        Button.Size = UDim2.new(1, 0, 0, 40)
+        Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+        Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Button.Font = Enum.Font.SourceSansBold
+        Button.TextSize = 14
+        Button.Text = name
+
+        Button.MouseButton1Click:Connect(callback)
+    end
+
+    -- زر تجميد / إلغاء تجميد اللاعبين
+    createAdminButton("Freeze / Unfreeze", function()
+        for _, target in pairs(game.Players:GetPlayers()) do
+            if target ~= player and target.Character then
+                local humanoidRootPart = target.Character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart then
+                    humanoidRootPart.Anchored = not humanoidRootPart.Anchored
+                end
+            end
+        end
+    end)
+
+    -- زر نقل اللاعبين إليك (Teleport)
+    createAdminButton("Teleport Players", function()
+        for _, target in pairs(game.Players:GetPlayers()) do
+            if target ~= player and target.Character then
+                local humanoidRootPart = target.Character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                    humanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame
+                end
+            end
+        end
+    end)
+
+    -- زر طرد اللاعبين
+    createAdminButton("Kick Players", function()
+        for _, target in pairs(game.Players:GetPlayers()) do
+            if target ~= player then
+                target:Kick("تم طردك من قبل الأدمن.")
+            end
+        end
+    end)
+end
