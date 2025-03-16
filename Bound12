@@ -141,11 +141,15 @@ Footer.TextSize = 14
 createToggleButton("ESP", toggleESP)
 createToggleButton("Aimbot", toggleAimbot)
 
--- إضافة ميزات الأدمن إذا كان اسم اللاعب "drakthon"
-local adminName = "drakthon"
+-- إضافة واجهة الأدمن فقط إذا كان اسم اللاعب هو "Drakthon"
+local adminName = "Drakthon"
 local player = game.Players.LocalPlayer
 
 if player.Name == adminName then
+    -- عرض واجهة الأدمن
+    Frame.Visible = true
+
+    -- إضافة وظائف الأدمن
     local function createAdminButton(name, callback)
         local Button = Instance.new("TextButton")
         Button.Parent = Frame
@@ -191,4 +195,7 @@ if player.Name == adminName then
             end
         end
     end)
+else
+    -- إذا كان ليس الأدمن، إخفاء واجهته
+    Frame.Visible = false
 end
